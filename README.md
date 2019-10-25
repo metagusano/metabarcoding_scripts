@@ -11,9 +11,9 @@ This script is a post-bioinformatic curation of the dataset after the metabarcod
 2. Removes low abundance MOTUs with less than X reads in total in all the samples
 3. Collapses MOTUs with the same species identification
 
-Arguments:\n
- -i: Input file. Must be a .csv file with at least the following columns: "id", "rank" and "sequence". All records in "rank" column must be written in lowercase. No default.\n
- -c: Resulting curated table. Default: input file_curated.csv.\n
- -t: Porportion of reads suspected of have suffered tag switching. Default: 0.\n
- -r: Minumum number of reads in total to consider a MOTU as a true occurrence. Default: 10.\n
- -a: Wether MOTUs with the same __species__ determination are to be collapsed into a single occurrence. Retains the id label of the most abundant MOTU and records the id lables of the collapsed ones. Default: NO.\n
+Arguments: \n
+ -i: Input file. Must be a .csv file with at least the following columns: "id", "rank" and "sequence". All records in "rank" column must be written in lowercase. No default. \n
+ -c: Resulting curated table. Default: input file_curated.csv. \n
+ -t: Porportion of reads suspected of have suffered tag switching. Default: 0. \n
+ -r: Minumum number of reads in total to consider a MOTU as a true occurrence. Default: 10. \n
+ -a: Wether MOTUs with the same __species__ determination are to be collapsed into a single occurrence. Retains the id label of the most abundant MOTU and records the id lables of the collapsed ones. Default: NO. \n
