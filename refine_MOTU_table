@@ -96,12 +96,11 @@ if (opt$aggregate == "yes"){
   aggregated_species_reads <- as.data.frame(matrix(nrow = length(OTUS_samples), ncol = 0))
   sequences <- NULL
   for (i in 1:length(Unique_species_reads[,1])){
-    representative_seq <- which(OTUS_species.sum$total.reads %in% max(OTUS_species.sum[OTUS_species.sum$species_name==unique(OTUS_species.sum$species_name)[i],]$total.reads))
-    aggregated_species_taxo <- rbind(aggregated_species_taxo, OTUS_species[representative_seq,c(OTUS_species_taxonomy)])
+    representative_seq[i] <- which(OTUS_species.sum$total.reads == max(OTUS_species.sum[OTUS_species.sum$species_name==Unique_species_reads$species_name[i],]$total.reads))
+    aggregated_species_taxo <- rbind(aggregated_species_taxo, OTUS_species[representative_seq[i],c(OTUS_species_taxonomy)])
     aggregated_species_reads <- rbind(aggregated_species_reads, Unique_species_reads[i,c(OTUS_samples)])
-    sequences <- c(sequences, as.character(OTUS_species$sequence[representative_seq]))
+    sequences <- c(sequences, as.character(OTUS_species$sequence[representative_seq[i]]))
     aggregated_MOTUs_id <- c(aggregated_MOTUs_id, list(as.character(OTUS_species.sum[OTUS_species.sum$species_name==unique(OTUS_species.sum$species_name)[i],]$id)))
-    aggregated_MOTUs_seqs <- c(aggregated_MOTUs_seqs, list(as.character(OTUS_species.sum[OTUS_species.sum$species_name==unique(OTUS_species.sum$species_name)[i],]$sequence)))
   }
   
   aggregated_MOTUs <- length(aggregated_species_taxo[,1])
