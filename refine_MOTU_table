@@ -28,7 +28,7 @@ if (is.null(opt$input_table)){
 }
 
 if ((is.null(opt$curated_table)) | (is.null(opt$mistagging)) | (is.null(opt$reads_minimum)) | (is.null(opt$aggregate))){
-  opt$curated_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-3),"_curated.csv",sep="")
+  opt$curated_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
   opt$mistagging <- 0.004
   opt$reads_minimum <- 10
   opt$aggregate <- "No"
