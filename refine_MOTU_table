@@ -1,18 +1,19 @@
 #!/usr/bin/env Rscript
 
+
 library(optparse)
 options( warn = -1 )
 
 option_list = list(
-  make_option(c("-i", "--input_table"), type="character", default=NULL, 
+  make_option(c("-i", "--input_table"), type="character", default=NULL,
               help="MOTU table with MOTUs in rows and samples in columns", metavar="character"),
-  make_option(c("-o", "--curated_table"), type="character", default=NULL, 
+  make_option(c("-o", "--output_table"), type="character", default=NULL,
               help="Output file name [default = input file ending in curated.csv]", metavar="character"),
-  make_option(c("-t", "--mistagging"), type="numeric", default=NULL, 
+  make_option(c("-t", "--mistagging"), type="numeric", default=NULL,
               help="Proportion of reads in the total dataset suspected of being assigned to samples by error (tag switching)", metavar="number"),
-  make_option(c("-r", "--reads_minimum"), type="integer", default=NULL, 
+  make_option(c("-r", "--reads_minimum"), type="integer", default=NULL,
               help="Minimum number of total reads for a MOTU to be considered a true occurrence",metavar="number"),
-  make_option(c("-a", "--aggregate"), type="character", default=NULL, 
+  make_option(c("-a", "--aggregate"), type="character", default=NULL,
               help="Whether you want to aggregate MOTUs with coincident species determination into a single occurrence", metavar="character")
 )
 
@@ -24,8 +25,8 @@ if (is.null(opt$input_table)){
   stop("At least one file must be provided: input .csv table with taxonomy, abundances and sequences.", call.=FALSE)
 }
 
-if ((is.null(opt$curated_table)) | (is.null(opt$mistagging)) | (is.null(opt$reads_minimum)) | (is.null(opt$aggregate))){
-  opt$curated_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
+if ((is.null(opt$output_table)) | (is.null(opt$mistagging)) | (is.null(opt$reads_minimum)) | (is.null(opt$aggregate))){
+  opt$output_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
   opt$mistagging <- 0
   opt$reads_minimum <- 3
   opt$aggregate <- "No"
@@ -69,7 +70,6 @@ OTUS.goodtags.sum <- add_column(OTUS.goodtags, total.reads = rowSums(OTUS.goodta
 OTUS.goodtags.minreads <- OTUS.goodtags[!(OTUS.goodtags.sum$total.reads<opt$reads_minimum),]
 message("  -> The table has been cleaned of low abundance MOTUs: records with less than ", opt$reads_minimum, " reads are considered false MOTUs")
 
-
 if (opt$aggregate == "yes"){
   message("~ ")
   message("~ ")
@@ -99,14 +99,14 @@ if (opt$aggregate == "yes"){
     sequences <- c(sequences, as.character(OTUS_species$sequence[representative_seq[i]]))
     aggregated_MOTUs_id <- c(aggregated_MOTUs_id, list(as.character(OTUS_species.sum[OTUS_species.sum$species_name==unique(OTUS_species.sum$species_name)[i],]$id)))
   }
-  
+
   aggregated_MOTUs <- length(aggregated_species_taxo[,1])
   aggregated_species <- cbind(aggregated_species_taxo,
                               aggregated_species_reads,
                               sequence=sequences,
                               aggregated_ids=noquote(aggregated_MOTUs_id))
   message("  -> A total of ", original_MOTUs, " MOTUs have been collapsed into ", aggregated_MOTUs, " species")
-  
+
   message("~ ")
   message("~ ")
   message("~ Generating the final curated table")
@@ -119,8 +119,9 @@ if (opt$aggregate == "yes"){
   final_table <- OTUS.goodtags.minreads
 }
 
-
-write.csv2(final_table, opt$curated_table, row.names = F)
+                         
+write.csv2(final_table, opt$output_table, row.names = F)
 message("~ ")
 message("~ ")
-message("  -> Final table has been written with ", length(final_table[,1]), " MOTUs <-")
+message("  -> Final table ", opt$output_table, "  has been written with ", length(final_table[,1]), " MOTUs <-")
+ 
