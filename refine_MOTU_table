@@ -25,11 +25,20 @@ if (is.null(opt$input_table)){
   stop("At least one file must be provided: input .csv table with taxonomy, abundances and sequences.", call.=FALSE)
 }
 
-if ((is.null(opt$output_table)) | (is.null(opt$mistagging)) | (is.null(opt$reads_minimum)) | (is.null(opt$aggregate))){
+if (is.null(opt$output_table)) {
   opt$output_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
+}
+
+if(is.null(opt$mistagging)) {
   opt$mistagging <- 0
+}
+
+if(is.null(opt$reads_minimum)) {
   opt$reads_minimum <- 3
-  opt$aggregate <- "No"
+}
+
+if(is.null(opt$aggregate)) {
+  opt$aggregate <- "no"
 }
 
 ###
