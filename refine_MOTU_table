@@ -1,15 +1,12 @@
 #!/usr/bin/env Rscript
 
-
-
-
 library(optparse)
 options( warn = -1 )
 
 option_list = list(
   make_option(c("-i", "--input_table"), type="character", default=NULL, 
               help="MOTU table with MOTUs in rows and samples in columns", metavar="character"),
-  make_option(c("-c", "--curated_table"), type="character", default=NULL, 
+  make_option(c("-o", "--curated_table"), type="character", default=NULL, 
               help="Output file name [default = input file ending in curated.csv]", metavar="character"),
   make_option(c("-t", "--mistagging"), type="numeric", default=NULL, 
               help="Proportion of reads in the total dataset suspected of being assigned to samples by error (tag switching)", metavar="number"),
@@ -30,7 +27,7 @@ if (is.null(opt$input_table)){
 if ((is.null(opt$curated_table)) | (is.null(opt$mistagging)) | (is.null(opt$reads_minimum)) | (is.null(opt$aggregate))){
   opt$curated_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
   opt$mistagging <- 0
-  opt$reads_minimum <- 10
+  opt$reads_minimum <- 3
   opt$aggregate <- "No"
 }
 
