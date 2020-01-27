@@ -13,9 +13,9 @@ This script is a post-bioinformatic curation of the dataset after the metabarcod
 
 Arguments: <br />
  -_i_: Input file. Must be a .csv file with at least the following columns: "id", "rank" and "sequence". All records in "rank" column must be written in lowercase. No default. <br />
- -_c_: Resulting curated table. Default: input file_curated.csv. <br />
+ -_o_: Resulting curated table. Default: input file_curated.csv. <br />
  -_t_: Proportion of reads suspected of have suffered tag switching. No percentage. Default: 0. <br />
- -_r_: Minumum number of reads in total to consider a MOTU as a true occurrence. Default: 10. <br />
+ -_r_: Minumum number of reads in total to consider a MOTU as a true occurrence. Default: 3. <br />
  -_a_: Wether MOTUs with the same __species__ determination are to be collapsed into a single occurrence. Retains the id label of the most abundant MOTU and records the id lables of the collapsed ones. Default: NO. <br />
 
 
