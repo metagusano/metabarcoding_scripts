@@ -94,18 +94,21 @@ if (opt$aggregate == "yes"){
   OTUS_species_info <- sapply(OTUS_species, is.factor)
   OTUS_species_taxonomy <- names(which(OTUS_species_info==T))
   OTUS_species_taxonomy <- noquote(OTUS_species_taxonomy[OTUS_species_taxonomy!=c("sequence")])
-  Unique_species_reads <- data.frame(OTUS_species %>% group_by(species_name) %>% summarise_if(is.numeric, funs(sum), order=F))
+  Unique_species_reads <- data.frame(OTUS_species %>% group_by(species_name) %>% summarise_if(is.numeric, funs(sum), order=T))
   representative_seq <- NULL
   aggregated_MOTUs_id <- NULL
   aggregated_MOTUs_seqs <- NULL
+  MOTU_no <- NULL
   aggregated_species_taxo <- as.data.frame(matrix(nrow = 0, ncol = length(OTUS_species_taxonomy)))
   aggregated_species_reads <- as.data.frame(matrix(nrow = length(OTUS_samples), ncol = 0))
   sequences <- NULL
   for (i in 1:length(Unique_species_reads[,1])){
-    representative_seq[i] <- which(OTUS_species.sum$total.reads == max(OTUS_species.sum[OTUS_species.sum$species_name==Unique_species_reads$species_name[i],]$total.reads))
-    aggregated_species_taxo <- rbind(aggregated_species_taxo, OTUS_species[representative_seq[i],c(OTUS_species_taxonomy)])
+    representative_seq <- which(OTUS_species.sum$total.reads == max(OTUS_species.sum[OTUS_species.sum$species_name==Unique_species_reads$species_name[i],]$total.reads))
+    potential_motu <- which(OTUS_species$species_name==Unique_species_reads$species_name[i])
+    MOTU_no[i] <- representative_seq[which(representative_seq %in% potential_motu)]
+    aggregated_species_taxo <- rbind(aggregated_species_taxo, OTUS_species[MOTU_no[i],c(OTUS_species_taxonomy)])
     aggregated_species_reads <- rbind(aggregated_species_reads, Unique_species_reads[i,c(OTUS_samples)])
-    sequences <- c(sequences, as.character(OTUS_species$sequence[representative_seq[i]]))
+    sequences <- c(sequences, as.character(OTUS_species$sequence[MOTU_no[i]]))
     aggregated_MOTUs_id <- c(aggregated_MOTUs_id, list(as.character(OTUS_species.sum[OTUS_species.sum$species_name==unique(OTUS_species.sum$species_name)[i],]$id)))
   }
 
@@ -133,4 +136,3 @@ write.csv2(final_table, opt$output_table, row.names = F)
 message("~ ")
 message("~ ")
 message("  -> Final table ", opt$output_table, "  has been written with ", length(final_table[,1]), " MOTUs <-")
- 
