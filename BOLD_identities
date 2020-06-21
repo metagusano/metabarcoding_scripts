@@ -1,0 +1,155 @@
+#!/usr/bin/env Rscript
+
+#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. This way it never stops obtaining the identification, a recurrent problem with BOLD. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
+library(optparse)
+library(XML)
+library(curl)
+library(bold)
+library(seqinr)
+library(tibble)
+lenght=length
+
+#Set file names for input and output files
+options( warn = -1 )
+
+option_list = list(
+  make_option(c("-f", "--input_fasta"), type="character", default=NULL,
+              help="fasta file with the centroid sequences to identify", metavar="character"),
+  make_option(c("-t", "--taxonomy_table"), type="character", default=NULL,
+              help="Output file name [default = input file ending in _taxonomy.csv]", metavar="character")
+)
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+if (is.null(opt$input_fasta)){
+  print_help(opt_parser)
+  stop("At least one file must be provided: input fasta table with with the centroid sequences to identify.", call.=FALSE)
+}
+
+if (is.null(opt$taxonomy_table)) {
+  opt$taxonomy_table <- paste(substr(opt$input_fasta,1,nchar(opt$input_fasta)-4),"_taxonomy.csv",sep="")
+}
+
+# Read in sequences
+
+query_seqs <- read.fasta(opt$input_fasta)
+
+# Loop over sequences and get best match from BOLD
+
+taxa_seq <- NULL
+taxa_BOLD <- NULL
+similarities <- NULL
+seqq <- NULL
+options(warn=-1)
+
+
+
+####AÑADIR BIN NUMBER!
+
+
+
+for (i in 1:length(query_seqs)) {
+  cat("Matching sequence ", i, "\n")
+	seq <-getSequence(query_seqs[i], as.string=T)[[1]][[1]]
+	seqq[i] <- seq <-getSequence(query_seqs[i], as.string=T)[[1]][[1]]
+	sendurl <- paste("http://v4.boldsystems.org/index.php/Ids_xml?db=COX1&sequence=", seq, sep="")
+	http_request <- curl(url=sendurl)
+	matches <- suppressMessages(readLines(http_request))
+	if ( matches != "<?xml version=\"1.0\"?><matches></matches>") {
+		bestmatch <- xmlToList(matches)[1]
+    taxa_seq[i] <- names(query_seqs[i])
+		taxa_BOLD[i] <- bestmatch$match$taxonomicidentification
+		taxa_record[i] <- bestmatch$match$ID
+		similarities[i] <- bestmatch$match$similarity
+	} else {
+	  seq_rev <- paste(rev(comp(strsplit(seq[[1]], "")[[1]])), collapse="")
+	  sendurl <- paste("http://v4.boldsystems.org/index.php/Ids_xml?db=COX1&sequence=", seq_rev, sep="")
+	  http_request <- curl(url=sendurl)
+	  matches_rev <- suppressMessages(readLines(http_request))
+	  if ( matches_rev != "<?xml version=\"1.0\"?><matches></matches>") {
+	    bestmatch <- xmlToList(matches)[1]
+	    taxa_seq[i] <- names(query_seqs[i])
+	    taxa_BOLD[i] <- bestmatch$match$taxonomicidentification
+	    taxa_record[i] <- bestmatch$match$ID
+	    similarities[i] <- bestmatch$match$similarity
+	  } else {
+	  taxa_seq[i] <- names(query_seqs[i])
+		taxa_BOLD[i] <- "no_match"
+		taxa_record[i] <- "no_match"
+		similarities[i] <- "no_match"
+	  }
+	}
+}
+
+Genus <- NULL
+Family <- NULL
+Order <- NULL
+Class <- NULL
+Phylum <- NULL
+for (i in 1:length(taxa_BOLD)){
+  cat("Matching taxonomy ", i, "\n")
+  if (taxa_BOLD[i]!="no_match"){
+    Genus[i] <- bold_tax_name(taxa_BOLD[i])$parentname
+    Family[i] <- bold_tax_name(Genus[i])$parentname
+    Order[i] <- bold_tax_name(Family[i])$parentname
+    Class[i] <- bold_tax_name(Order[i])$parentname
+    Phylum[i] <- bold_tax_name(Class[i])$parentname
+  } else{
+    Genus[i] <- "no_match"
+    Family[i] <- "no_match"
+    Order[i] <- "no_match"
+    Class[i] <- "no_match"
+    Phylum[i] <- "no_match"
+  }
+}
+
+BOLDhit_results <-data.frame(Query_id=taxa_seq, Phylum=Phylum, Class=Class, Order=Order, Family=Family, Genus=Genus, Species=taxa_BOLD, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, Similarity=as.numeric(similarities), Sequence=seqq)
+
+Rank <- NULL
+for (i in 1:lenght(BOLDhit_results[,1])){
+  if (BOLDhit_results$BOLD_hit[i]!="no_match"){
+    if (BOLDhit_results$Similarity[i] < 0.85){
+      cat("MOTU ", i, "identified at Class level", "\n")
+      Rank[i] <- "Class"
+      BOLDhit_results$Order[i] <- "no match"
+      BOLDhit_results$Family[i] <- "no_match"
+      BOLDhit_results$Genus[i] <- "no_match"
+      BOLDhit_results$Species[i] <- "no_match"
+    } else{
+      if (BOLDhit_results$Similarity[i] < 0.90){
+        cat("MOTU ", i, "identified at Order level", "\n")
+        Rank[i] <- "Order"
+        BOLDhit_results$Family[i] <- "no_match"
+        BOLDhit_results$Genus[i] <- "no_match"
+        BOLDhit_results$Species[i] <- "no_match"
+      } else{
+        if (BOLDhit_results$Similarity[i] < 0.95){
+          cat("MOTU ", i, "identified at Family level", "\n")
+          Rank[i] <- "Family"
+          BOLDhit_results$Genus[i] <- "no_match"
+          BOLDhit_results$Species[i] <- "no_match"
+        } else{
+          if (BOLDhit_results$Similarity[i] < 0.98){
+            cat("MOTU ", i, "identified at Genus level", "\n")
+            Rank[i] <- "Genus"
+            BOLDhit_results$Species[i] <- "no_match"
+          } else {
+            cat("MOTU ", i, "identified at Species level", "\n")
+            Rank[i] <- "Species"
+          }
+        }
+      }
+    }
+  } else{
+    cat("MOTU ", i, " not identified","\n")
+    Rank[i] <- "no_rank"
+  }
+}
+
+BOLDhit_results <- add_column(BOLDhit_results, Rank=Rank, .after="Query_id")
+
+write.csv2(BOLDhit_results, opt$taxonomy_table, row.names = F)
+message("~ ")
+message("~ ")
+message("  -> Taxonomy has been assigned to ", length(BOLDhit_results[,1]), " MOTUs <-")
