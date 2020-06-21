@@ -18,9 +18,7 @@ Arguments: <br />
  -_r_: Minumum number of reads in total to consider a MOTU as a true occurrence. Default: 3. <br />
  -_a_: Wether MOTUs with the same __species__ determination are to be collapsed into a single occurrence. Retains the id label of the most abundant MOTU and records the id lables of the collapsed ones. Default: NO. <br />
  
-
-
-
+<br /><br />
 - __"BOLD_identities"__, R script
 
 Usage (command line (terminal or similar)): <br /><br />$ refine_MOTU_table -f _input_fasta.fasta_ -t _taxonomy_table.csv_
@@ -31,10 +29,7 @@ Arguments:  <br />
 -_f_: Input file. Must be a .fasta / .fas / .fa file. No default. <br />
 -_t_: Output table with taxonomy. Default input file_taxonomy.csv
 
-
-
-
-
+<br /><br />
 - "polyclad_colors", R script.
 
 R function for colour palettes representing the colouration pattern of some polyclad flatworm (Platyhelminthes, Polycladida) species. Syntax and function copied from https://github.com/karthik/wesanderson (highly recomended), only the names of the function and the palettes is changed.
