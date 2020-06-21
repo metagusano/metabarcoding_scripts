@@ -27,7 +27,7 @@ This script conducts taxonomic assignation of COI sequences by querying to BOLD 
 
 Arguments:  <br />
 -_f_: Input file. Must be a .fasta / .fas / .fa file. No default. <br />
--_t_: Output table with taxonomy. Default input file_taxonomy.csv
+-_t_: Output table with taxonomy. Default: input file_taxonomy.csv
 
 <br /><br />
 - "polyclad_colors", R script.
