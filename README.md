@@ -1,5 +1,8 @@
 # Metabarcoding Scripts
 
+SEE __Bioinformatic Pipeline For Metabarcoding.pdf__ FOR A DETAILED TUTORIAL OF HOW I RUN METABARCODING ANALYSES
+
+
 Some useful scripts for metabarcoding pipelines.
 
 - __"refine_MOTU_table"__, R script.
