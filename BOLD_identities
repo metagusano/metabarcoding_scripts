@@ -104,7 +104,7 @@ for (i in 1:length(taxa_BOLD)){
   }
 }
 
-BOLDhit_results <-data.frame(Query_id=taxa_seq, Phylum=Phylum, Class=Class, Order=Order, Family=Family, Genus=Genus, Species=taxa_BOLD, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, Similarity=as.numeric(similarities), Sequence=seqq)
+BOLDhit_results <-data.frame(id=taxa_seq, Phylum=Phylum, Class=Class, Order=Order, Family=Family, Genus=Genus, Species=taxa_BOLD, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, Similarity=as.numeric(similarities), Sequence=seqq)
 
 Rank <- NULL
 for (i in 1:lenght(BOLDhit_results[,1])){
@@ -147,7 +147,7 @@ for (i in 1:lenght(BOLDhit_results[,1])){
   }
 }
 
-BOLDhit_results <- add_column(BOLDhit_results, Rank=Rank, .after="Query_id")
+BOLDhit_results <- add_column(BOLDhit_results, Rank=Rank, .after="id")
 
 write.csv2(BOLDhit_results, opt$taxonomy_table, row.names = F)
 message("~ ")
