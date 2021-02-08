@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. This way it never stops obtaining the identification, a recurrent problem with BOLD. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
+#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. This way it never stops obtaining the identification due to saturation, a recurrent problem with BOLD R package. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
 library(optparse)
 library(XML)
 library(curl)
@@ -46,7 +46,7 @@ options(warn=-1)
 
 
 
-####AÑADIR BIN NUMBER! (Work in progres...)
+####AÑADIR BIN NUMBER!
 
 
 
@@ -83,6 +83,7 @@ for (i in 1:length(query_seqs)) {
 	}
 }
 
+Species <- NULL
 Genus <- NULL
 Family <- NULL
 Order <- NULL
@@ -91,12 +92,82 @@ Phylum <- NULL
 for (i in 1:length(taxa_BOLD)){
   cat("Matching taxonomy ", i, "\n")
   if (taxa_BOLD[i]!="no_match"){
-    Genus[i] <- bold_tax_name(taxa_BOLD[i])$parentname
-    Family[i] <- bold_tax_name(Genus[i])$parentname
-    Order[i] <- bold_tax_name(Family[i])$parentname
-    Class[i] <- bold_tax_name(Order[i])$parentname
-    Phylum[i] <- bold_tax_name(Class[i])$parentname
+    if (bold_tax_name(taxa_BOLD[i])$tax_rank=="species"){
+      Species[i] <- bold_tax_name(taxa_BOLD[i])$taxon
+      Genus[i] <- bold_tax_name(taxa_BOLD[i])$parentname
+      while (bold_tax_name(bold_tax_name(Genus[i])$parentname)$tax_rank!="family"){
+        genus <- bold_tax_name(Genus[i])$parentname
+        Genus[i] <- genus
+      }
+      Family[i] <- bold_tax_name(Genus[i])$parentname
+      Order[i] <- bold_tax_name(Family[i])$parentname
+      Class[i] <- bold_tax_name(Order[i])$parentname
+      Phylum[i] <- bold_tax_name(Class[i])$parentname
+    } else {
+      if (bold_tax_name(taxa_BOLD[i])$tax_rank=="genus"){
+        Species[i] <- "no_match"
+        Genus[i] <- bold_tax_name(taxa_BOLD[i])$taxon
+        while (bold_tax_name(bold_tax_name(Genus[i])$parentname)$tax_rank!="family"){
+          genus <- bold_tax_name(Genus[i])$parentname
+          Genus[i] <- genus
+        }
+        Family[i] <- bold_tax_name(Genus[i])$parentname
+        Order[i] <- bold_tax_name(Family[i])$parentname
+        Class[i] <- bold_tax_name(Order[i])$parentname
+        Phylum[i] <- bold_tax_name(Class[i])$parentname
+      } else {
+        if (bold_tax_name(taxa_BOLD[i])$tax_rank==c("subfamily", "tribe")){
+          Species[i] <- "no_match"
+          Genus[i] <- "no_match"
+          Family[i] <- bold_tax_name(Genus[i])$parentname
+          while (bold_tax_name(Family[i])$tax_rank!="family"){
+            family <- bold_tax_name(Family[i])$parentname
+            Family[i] <- family
+          }
+          Order[i] <- bold_tax_name(Family[i])$parentname
+          Class[i] <- bold_tax_name(Order[i])$parentname
+          Phylum[i] <- bold_tax_name(Class[i])$parentname
+        } else {
+          if (bold_tax_name(taxa_BOLD[i])$tax_rank=="family"){
+            Species[i] <- "no_match"
+            Genus[i] <- "no_match"
+            Family[i] <- bold_tax_name(taxa_BOLD[i])$taxon
+            Order[i] <- bold_tax_name(Family[i])$parentname
+            Class[i] <- bold_tax_name(Order[i])$parentname
+            Phylum[i] <- bold_tax_name(Class[i])$parentname
+          } else {
+            if (bold_tax_name(taxa_BOLD[i])$tax_rank=="order"){
+              Species[i] <- "no_match"
+              Genus[i] <- "no_match"
+              Family[i] <- "no_match"
+              Order[i] <- bold_tax_name(taxa_BOLD[i])$taxon
+              Class[i] <- bold_tax_name(Order[i])$parentname
+              Phylum[i] <- bold_tax_name(Class[i])$parentname
+            } else {
+              if (bold_tax_name(taxa_BOLD[i])$tax_rank=="class"){
+                Species[i] <- "no_match"
+                Genus[i] <- "no_match"
+                Family[i] <- "no_match"
+                Order[i] <- "no_match"
+                Class[i] <- bold_tax_name(taxa_BOLD[i])$taxon
+                Phylum[i] <- bold_tax_name(Class[i])$parentname
+              } else {
+                if (bold_tax_name(taxa_BOLD[i])$tax_rank=="phylum"){
+                  Species[i] <- "no_match"
+                  Genus[i] <- "no_match"
+                  Family[i] <- "no_match"
+                  Order[i] <- "no_match"
+                  Class[i] <- "no_match"
+                  Phylum[i] <- bold_tax_name(taxa_BOLD[i])$taxon
+                } else {}
+              }
+            }
+          }
+        }
+      }
+    }
   } else{
+    Species[i] <- "no_match"
     Genus[i] <- "no_match"
     Family[i] <- "no_match"
     Order[i] <- "no_match"
@@ -105,7 +176,7 @@ for (i in 1:length(taxa_BOLD)){
   }
 }
 
-BOLDhit_results <-data.frame(id=taxa_seq, Phylum=Phylum, Class=Class, Order=Order, Family=Family, Genus=Genus, Species=taxa_BOLD, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, Similarity=as.numeric(similarities), Sequence=seqq)
+BOLDhit_results <-data.frame(id=taxa_seq, Phylum=Phylum, Class=Class, Order=Order, Family=Family, Genus=Genus, Species=Species, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, Similarity=as.numeric(similarities), Sequence=seqq)
 
 Rank <- NULL
 for (i in 1:lenght(BOLDhit_results[,1])){
