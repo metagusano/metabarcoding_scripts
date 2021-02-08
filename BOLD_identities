@@ -41,11 +41,12 @@ taxa_seq <- NULL
 taxa_BOLD <- NULL
 similarities <- NULL
 seqq <- NULL
+taxa_record <- NULL
 options(warn=-1)
 
 
 
-####AÑADIR BIN NUMBER!
+####AÑADIR BIN NUMBER! (Work in progres...)
 
 
 
