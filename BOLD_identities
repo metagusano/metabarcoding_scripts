@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. This way it never stops obtaining the identification due to saturation, a recurrent problem with BOLD R package. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
+#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. This way it never stops obtaining the identification, a recurrent problem with BOLD. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
 library(optparse)
 library(XML)
 library(curl)
@@ -28,7 +28,7 @@ if (is.null(opt$input_fasta)){
 }
 
 if (is.null(opt$taxonomy_table)) {
-  opt$taxonomy_table <- paste(substr(opt$input_fasta,1,nchar(opt$input_fasta)-4),"_taxonomy.csv",sep="")
+  opt$taxonomy_table <- paste(substr(opt$input_fasta,1,nchar(opt$input_fasta)-6),"_taxonomy.csv",sep="")
 }
 
 # Read in sequences
@@ -46,7 +46,7 @@ options(warn=-1)
 
 
 
-####AÑADIR BIN NUMBER!
+####AÑADIR BIN NUMBER! (work in progress...)
 
 
 
@@ -95,11 +95,12 @@ for (i in 1:length(taxa_BOLD)){
     if (bold_tax_name(taxa_BOLD[i])$tax_rank=="species"){
       Species[i] <- bold_tax_name(taxa_BOLD[i])$taxon
       Genus[i] <- bold_tax_name(taxa_BOLD[i])$parentname
-      while (bold_tax_name(bold_tax_name(Genus[i])$parentname)$tax_rank!="family"){
-        genus <- bold_tax_name(Genus[i])$parentname
-        Genus[i] <- genus
+      genus <- Genus[i]
+      while (bold_tax_name(bold_tax_name(genus)$parentname)$tax_rank!="family"){
+        genus <- bold_tax_name(genus)$parentname
+        genus <- genus
       }
-      Family[i] <- bold_tax_name(Genus[i])$parentname
+      Family[i] <- bold_tax_name(genus)$parentname
       Order[i] <- bold_tax_name(Family[i])$parentname
       Class[i] <- bold_tax_name(Order[i])$parentname
       Phylum[i] <- bold_tax_name(Class[i])$parentname
@@ -107,11 +108,12 @@ for (i in 1:length(taxa_BOLD)){
       if (bold_tax_name(taxa_BOLD[i])$tax_rank=="genus"){
         Species[i] <- "no_match"
         Genus[i] <- bold_tax_name(taxa_BOLD[i])$taxon
-        while (bold_tax_name(bold_tax_name(Genus[i])$parentname)$tax_rank!="family"){
-          genus <- bold_tax_name(Genus[i])$parentname
-          Genus[i] <- genus
+        genus <- Genus[i]
+        while (bold_tax_name(bold_tax_name(genus)$parentname)$tax_rank!="family"){
+          genus <- bold_tax_name(genus)$parentname
+          genus <- genus
         }
-        Family[i] <- bold_tax_name(Genus[i])$parentname
+        Family[i] <- bold_tax_name(genus)$parentname
         Order[i] <- bold_tax_name(Family[i])$parentname
         Class[i] <- bold_tax_name(Order[i])$parentname
         Phylum[i] <- bold_tax_name(Class[i])$parentname
@@ -182,39 +184,36 @@ Rank <- NULL
 for (i in 1:lenght(BOLDhit_results[,1])){
   if (BOLDhit_results$BOLD_hit[i]!="no_match"){
     if (BOLDhit_results$Similarity[i] < 0.85){
-      cat("MOTU ", i, "identified at Class level", "\n")
-      Rank[i] <- "Class"
       BOLDhit_results$Order[i] <- "no match"
       BOLDhit_results$Family[i] <- "no_match"
       BOLDhit_results$Genus[i] <- "no_match"
       BOLDhit_results$Species[i] <- "no_match"
     } else{
       if (BOLDhit_results$Similarity[i] < 0.90){
-        cat("MOTU ", i, "identified at Order level", "\n")
-        Rank[i] <- "Order"
         BOLDhit_results$Family[i] <- "no_match"
         BOLDhit_results$Genus[i] <- "no_match"
         BOLDhit_results$Species[i] <- "no_match"
       } else{
         if (BOLDhit_results$Similarity[i] < 0.95){
-          cat("MOTU ", i, "identified at Family level", "\n")
-          Rank[i] <- "Family"
           BOLDhit_results$Genus[i] <- "no_match"
           BOLDhit_results$Species[i] <- "no_match"
         } else{
           if (BOLDhit_results$Similarity[i] < 0.98){
-            cat("MOTU ", i, "identified at Genus level", "\n")
-            Rank[i] <- "Genus"
             BOLDhit_results$Species[i] <- "no_match"
-          } else {
-            cat("MOTU ", i, "identified at Species level", "\n")
-            Rank[i] <- "Species"
           }
         }
       }
     }
+    if (Species[i]=="no_match"){
+      if (Genus[i]=="no_match"){
+        if(Family[i]=="no_match"){
+          if(Order[i]=="no_match"){
+            Rank[i] <- "class"
+          } else {Rank[i] <- "order"}
+        } else {Rank[i] <- "family"}
+      } else { Rank[i] <- "genus"}
+    } else {Rank[i] <- "species"}
   } else{
-    cat("MOTU ", i, " not identified","\n")
     Rank[i] <- "no_rank"
   }
 }
@@ -224,4 +223,4 @@ BOLDhit_results <- add_column(BOLDhit_results, Rank=Rank, .after="id")
 write.csv2(BOLDhit_results, opt$taxonomy_table, row.names = F)
 message("~ ")
 message("~ ")
-message("  -> Taxonomy has been assigned to ", length(BOLDhit_results[,1]), " MOTUs <-")
+message(length(which(BOLDhit_results$Rank=="species")), " MOTUs identified at species level, ", length(which(BOLDhit_results$Rank %in% c("genus", "family", "order", "class"))), " MOTUs identified at other levels, and ", length(which(BOLDhit_results$Rank=="no_rank")), " MOTUs not identified")
