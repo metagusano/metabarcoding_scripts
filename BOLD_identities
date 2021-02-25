@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. This way it never stops obtaining the identification, a recurrent problem with BOLD. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
+#This script sends COI sequences to BOLD and retrieves the best hit together with the similarity between query and hit using the API system. It also retrieves the taxonomy of the species identified and assigns the correct lowest rank possible to the identification based on similarity thresholds.
 library(optparse)
 library(XML)
 library(curl)
