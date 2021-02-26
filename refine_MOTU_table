@@ -9,12 +9,14 @@ option_list = list(
               help="MOTU table with MOTUs in rows and samples in columns", metavar="character"),
   make_option(c("-o", "--output_table"), type="character", default=NULL,
               help="Output file name [default = input file ending in curated.csv]", metavar="character"),
-  make_option(c("-t", "--mistagging"), type="numeric", default=NULL,
+  make_option(c("-t", "--mistagging"), type="numeric", default=0.001,
               help="Proportion of reads in the total dataset suspected of being assigned to samples by error (tag switching)", metavar="number"),
-  make_option(c("-r", "--reads_minimum"), type="integer", default=NULL,
+  make_option(c("-r", "--reads_minimum"), type="integer", default=3,
               help="Minimum number of total reads for a MOTU to be considered a true occurrence",metavar="number"),
-  make_option(c("-a", "--aggregate"), type="character", default=NULL,
-              help="Whether you want to aggregate MOTUs with coincident species determination into a single occurrence", metavar="character")
+  make_option(c("-a", "--aggregate"), type="character", default="no",
+              help="Whether you want to aggregate MOTUs with coincident species determination into a single occurrence", metavar="character"),
+  make_option(c("-s", "--similarity"), type="numeric", default=0.95,
+              help="Minimum similarity percentage with the reference sequence to allow aggregation by species name", metavar="number")
 )
 
 opt_parser = OptionParser(option_list=option_list);
@@ -27,18 +29,6 @@ if (is.null(opt$input_table)){
 
 if (is.null(opt$output_table)) {
   opt$output_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
-}
-
-if(is.null(opt$mistagging)) {
-  opt$mistagging <- 0
-}
-
-if(is.null(opt$reads_minimum)) {
-  opt$reads_minimum <- 3
-}
-
-if(is.null(opt$aggregate)) {
-  opt$aggregate <- "no"
 }
 
 ###
