@@ -12,7 +12,7 @@ Usage (command line (terminal or similar)):<br /><br />$ refine_MOTU_table -i _i
 This script is a post-bioinformatic curation of the dataset after the metabarcoding pipeline. Three main functions:
 1. Removes low abundance reads on each sample subjected to tag switching
 2. Removes low abundance MOTUs with less than X reads in total in all the samples
-3. Collapses MOTUs with the same species identification
+3. Collapses MOTUs with the same species identification (only those above a similarity threshold with the reference sequence)
 
 Arguments: <br />
  -_i_: Input file. Must be a .csv file with at least the following columns: "id", "rank" and "sequence". All records in "rank" column must be written in lowercase. No default. <br />
