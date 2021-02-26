@@ -82,10 +82,12 @@ message("  -> The table has been cleaned of low abundance MOTUs: records with le
 if (opt$aggregate == "yes"){
   message("~ ")
   message("~ ")
-  message("~ Aggregating MOTUs with coincident species-level determination")
+  message("~ Aggregating MOTUs with coincident species-level determination accounting for % identity")
   OTUS_no_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank!="species",]
-  message("Ignoring ", length(OTUS_no_species[,1]), " MOTUs with taxonomic rank of genus or higher")
   OTUS_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank=="species",]
+  OTUS_no_species <- rbind(OTUS_no_species, OTUS_species[as.numeric(as.character(OTUS_species$identity))<0.95,])
+  message("Ignoring ", length(OTUS_no_species[,1]), " MOTUs with taxonomic rank of genus or higher")
+  OTUS_species <- OTUS_species[-c(as.numeric(as.character(OTUS_species$identity)))<0.95,]
   OTUS_species <- OTUS_species[order(OTUS_species$species_name),]
   original_MOTUs <- length(OTUS_species[,1])
   OTUS_species_abundance <- which(sapply(OTUS_species, is.factor)==F)
