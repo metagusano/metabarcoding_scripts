@@ -7,7 +7,7 @@ Some useful scripts for metabarcoding pipelines.
 
 - __"refine_MOTU_table"__, R script.
 
-Usage (command line (terminal or similar)):<br /><br />$ refine_MOTU_table -i _input_table.csv_ -c _output_table.csv_ -t _0.004_ -r _10_ -a _yes_
+Usage (command line (terminal or similar)):<br /><br />$ refine_MOTU_table -i _input_table.csv_ -c _output_table.csv_ -t _0.004_ -r _10_ -a _yes_ -s _0.92_
 
 This script is a post-bioinformatic curation of the dataset after the metabarcoding pipeline. Three main functions:
 1. Removes low abundance reads on each sample subjected to tag switching
