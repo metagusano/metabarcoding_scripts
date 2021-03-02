@@ -25,7 +25,7 @@ Arguments: <br />
 <br /><br />
 - __"BOLD_identities"__, R script
 
-Usage (command line (terminal or similar)): <br /><br />$ refine_MOTU_table -f _input_fasta.fasta_ -t _taxonomy_table.csv_
+Usage (command line (terminal or similar)): <br /><br />$ BOLD_identities -f _input_fasta.fasta_ -t _taxonomy_table.csv_
 
 This script conducts taxonomic assignation of COI sequences by querying to BOLD database. By using the API system instead of the identification function from package 'bold' the system does not saturate and keeps sending sequences and receiving identification. Then, those identifications are assigned to their lowest taxonomic level based on similarity thresholds (98 % for species, 95 % for genus, 90 % for family, and 85 % for order).
 
