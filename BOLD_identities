@@ -52,10 +52,9 @@ options(warn=-1)
 
 
 for (i in 1:length(query_seqs)) {
-  while (i < length(query_seqs)){
+  if (i < length(query_seqs)){
     message("Matching sequence ", i," of ",length(query_seqs), "\r", appendLF = FALSE)
-  }
-  message("Matching sequence ", i, " of ",length(query_seqs),"\n")
+  } else {message("Matching sequence ", i, " of ",length(query_seqs),"\n")}
 	seq <-getSequence(query_seqs[i], as.string=T)[[1]][[1]]
 	seqq[i] <- seq <-getSequence(query_seqs[i], as.string=T)[[1]][[1]]
 	sendurl <- paste("http://v4.boldsystems.org/index.php/Ids_xml?db=COX1&sequence=", seq, sep="")
@@ -94,10 +93,9 @@ Order <- NULL
 Class <- NULL
 Phylum <- NULL
 for (i in 1:length(taxa_BOLD)){
-  while (i < length(taxa_BOLD)){
+  if (i < length(taxa_BOLD)){
     message("Matching taxonomy ", i, "\r", appendLF = FALSE)
-  }
-  message("Matching taxonomy ", i, " of ",length(taxa_BOLD), "\n")
+  } else {message("Matching taxonomy ", i, " of ",length(taxa_BOLD), "\n")}
   if (taxa_BOLD[i]!="no_match"){
     if (bold_tax_name(taxa_BOLD[i])$tax_rank=="species"){
       Species[i] <- bold_tax_name(taxa_BOLD[i])$taxon
