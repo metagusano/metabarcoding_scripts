@@ -220,6 +220,7 @@ for (i in 1:lenght(BOLDhit_results[,1])){
 }
 
 BOLDhit_results <- add_column(BOLDhit_results, Rank=Rank, .after="id")
+BOLDhit_results$Similarity <- as.character(BOLDhit_results$Similarity)
 
 write.csv2(BOLDhit_results, opt$taxonomy_table, row.names = F)
 message("~ ")
