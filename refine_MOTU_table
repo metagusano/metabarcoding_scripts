@@ -42,7 +42,7 @@ OTU_abundance <- sapply(OTUS, is.numeric)
 OTUS_reads <- OTUS[,OTU_abundance]
 message("~ ")
 message("~ ")
-message("~ Reading original table with ", length(OTUS[,1])," MOTUs in ", length(OTUS_reads), " samples")
+message("~ Reading original table with ", length(OTUS[,1])," MOTUs in ", length(OTUS_reads), " samples", "\r", appendLF = FALSE)
 
 message("~ ")
 message("~ ")
