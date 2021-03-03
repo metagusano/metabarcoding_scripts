@@ -42,7 +42,7 @@ OTU_abundance <- sapply(OTUS, is.numeric)
 OTUS_reads <- OTUS[,OTU_abundance]
 message("~ ")
 message("~ ")
-message("~ Reading original table with ", length(OTUS[,1])," MOTUs in ", length(OTUS_reads), " samples", "\r", appendLF = FALSE)
+message("~ Reading original table with ", length(OTUS[,1])," MOTUs in ", length(OTUS_reads), " samples")
 
 message("~ ")
 message("~ ")
@@ -51,6 +51,9 @@ OTUS.goodtags <- OTUS
 total_sample <- NULL
 for (i in 1:length(OTUS_reads)) {
   total_sample[i] <- sum(OTUS_reads[,i])
+  while (i < length(OTUS_reads)){
+    message("In progress... sample ",i, " of ", length(OTUS_reads)," samples", "\r", appendLF = FALSE)
+  }
   message("In progress... sample ",i, " of ", length(OTUS_reads)," samples")
   for (j in 1:length(OTUS[,1])) {
     if (OTUS.goodtags[j,which(OTU_abundance)[i]] < (total_sample[i]*as.numeric(opt$mistagging))) {
