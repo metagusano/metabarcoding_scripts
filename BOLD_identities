@@ -118,10 +118,10 @@ for (i in 1:length(taxa_BOLD)){
         Class[i] <- bold_tax_name(Order[i])$parentname
         Phylum[i] <- bold_tax_name(Class[i])$parentname
       } else {
-        if (bold_tax_name(taxa_BOLD[i])$tax_rank==c("subfamily", "tribe")){
+        if (bold_tax_name(taxa_BOLD[i])$tax_rank %in% c("subfamily", "tribe")){
           Species[i] <- "no_match"
           Genus[i] <- "no_match"
-          Family[i] <- bold_tax_name(Genus[i])$parentname
+          Family[i] <-  bold_tax_name(taxa_BOLD[i])$parentname
           while (bold_tax_name(Family[i])$tax_rank!="family"){
             family <- bold_tax_name(Family[i])$parentname
             Family[i] <- family
