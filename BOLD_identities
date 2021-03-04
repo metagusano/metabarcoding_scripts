@@ -189,7 +189,7 @@ Rank <- NULL
 for (i in 1:lenght(BOLDhit_results[,1])){
   if (BOLDhit_results$BOLD_hit[i]!="no_match"){
     if (BOLDhit_results$Similarity[i] < 0.85){
-      BOLDhit_results$Order[i] <- "no match"
+      BOLDhit_results$Order[i] <- "no_match"
       BOLDhit_results$Family[i] <- "no_match"
       BOLDhit_results$Genus[i] <- "no_match"
       BOLDhit_results$Species[i] <- "no_match"
