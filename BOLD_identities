@@ -183,28 +183,28 @@ for (i in 1:length(taxa_BOLD)){
   }
 }
 
-BOLDhit_results <-data.frame(id=taxa_seq, Phylum=Phylum, Class=Class, Order=Order, Family=Family, Genus=Genus, Species=Species, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, Similarity=as.numeric(similarities), Sequence=seqq)
+BOLDhit_results <-data.frame(id=taxa_seq, phylum_name=Phylum, class_name=Class, order_name=Order, family_name=Family, genus_name=Genus, species_name=Species, BOLD_hit=taxa_BOLD, BOLD_record=taxa_record, best_identity=as.numeric(similarities), sequence=seqq)
 
 Rank <- NULL
 for (i in 1:lenght(BOLDhit_results[,1])){
   if (BOLDhit_results$BOLD_hit[i]!="no_match"){
-    if (BOLDhit_results$Similarity[i] < 0.85){
-      BOLDhit_results$Order[i] <- "no_match"
-      BOLDhit_results$Family[i] <- "no_match"
-      BOLDhit_results$Genus[i] <- "no_match"
-      BOLDhit_results$Species[i] <- "no_match"
+    if (BOLDhit_results$best_identity[i] < 0.85){
+      BOLDhit_results$order_name[i] <- "no_match"
+      BOLDhit_results$family_name[i] <- "no_match"
+      BOLDhit_results$genus_name[i] <- "no_match"
+      BOLDhit_results$species_name[i] <- "no_match"
     } else{
-      if (BOLDhit_results$Similarity[i] < 0.90){
-        BOLDhit_results$Family[i] <- "no_match"
-        BOLDhit_results$Genus[i] <- "no_match"
-        BOLDhit_results$Species[i] <- "no_match"
+      if (BOLDhit_results$best_identity[i] < 0.90){
+        BOLDhit_results$family_name[i] <- "no_match"
+        BOLDhit_results$genus_name[i] <- "no_match"
+        BOLDhit_results$species_name[i] <- "no_match"
       } else{
-        if (BOLDhit_results$Similarity[i] < 0.95){
-          BOLDhit_results$Genus[i] <- "no_match"
-          BOLDhit_results$Species[i] <- "no_match"
+        if (BOLDhit_results$best_identity[i] < 0.95){
+          BOLDhit_results$genus_name[i] <- "no_match"
+          BOLDhit_results$species_name[i] <- "no_match"
         } else{
-          if (BOLDhit_results$Similarity[i] < 0.98){
-            BOLDhit_results$Species[i] <- "no_match"
+          if (BOLDhit_results$best_identity[i] < 0.98){
+            BOLDhit_results$species_name[i] <- "no_match"
           }
         }
       }
@@ -223,8 +223,8 @@ for (i in 1:lenght(BOLDhit_results[,1])){
   }
 }
 
-BOLDhit_results <- add_column(BOLDhit_results, Rank=Rank, .after="id")
-BOLDhit_results$Similarity <- as.character(BOLDhit_results$Similarity)
+BOLDhit_results <- add_column(BOLDhit_results, rank=Rank, .after="id")
+BOLDhit_results$identity <- as.character(BOLDhit_results$identity)
 
 write.csv2(BOLDhit_results, opt$taxonomy_table, row.names = F)
 message("~ ")
