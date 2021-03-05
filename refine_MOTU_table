@@ -77,7 +77,7 @@ if (opt$aggregate == "yes"){
   message("~ Aggregating MOTUs with coincident species-level determination accounting for % identity")
   OTUS_no_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank!="species",]
   OTUS_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank=="species",]
-  OTUS_no_species <- rbind(OTUS_no_species, OTUS_species[as.numeric(as.character(OTUS_species$identity))<0.95,])
+  OTUS_no_species <- rbind(OTUS_no_species, OTUS_species[as.numeric(as.character(OTUS_species$identity))<as.numeric(opt$similarity),])
   message("Ignoring ", length(OTUS_no_species[,1]), " MOTUs with taxonomic rank of genus or higher")
   OTUS_species <- OTUS_species[-c(as.numeric(as.character(OTUS_species$identity)))<0.95,]
   OTUS_species <- OTUS_species[order(OTUS_species$species_name),]
