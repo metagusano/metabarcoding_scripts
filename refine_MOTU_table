@@ -36,7 +36,7 @@ if (is.null(opt$output_table)) {
 library(tibble)
 suppressMessages(library(dplyr))
 
-OTUS <- read.csv(opt$input_table, header=T, sep = ";")
+OTUS <- read.csv2(opt$input_table, header=T, sep = ";")
 OTUS$taxid <-as.factor(OTUS$taxid)
 OTU_abundance <- sapply(OTUS, is.numeric)
 OTUS_reads <- OTUS[,OTU_abundance]
@@ -124,7 +124,6 @@ if (opt$aggregate == "yes"){
   message("~ Generating the final curated table")
   final_table <- OTUS.goodtags.minreads
 }
-
                          
 write.csv2(final_table, opt$output_table, row.names = F)
 message("~ ")
