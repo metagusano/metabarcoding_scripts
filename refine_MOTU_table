@@ -1,5 +1,9 @@
 #!/usr/bin/env Rscript
 
+#This script is a post-bioinformatic curation of the dataset after the metabarcoding pipeline. Three main functions:
+#Removes low abundance reads on each sample subjected to tag switching
+#Removes low abundance MOTUs with less than X reads in total in all the samples
+#Collapses MOTUs with the same species identification (only those above a similarity threshold with the reference sequence)
 
 library(optparse)
 options( warn = -1 )
@@ -78,7 +82,7 @@ if (opt$aggregate == "yes"){
   OTUS.goodtags.minreads$best_identity <- as.factor(OTUS.goodtags.minreads$best_identity)
   OTUS_no_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank!="species",]
   OTUS_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank=="species",]
-  OTUS_no_species <- rbind(OTUS_no_species, OTUS_species[as.numeric(as.character(OTUS_species$identity))<as.numeric(opt$similarity),])
+  OTUS_no_species <- rbind(OTUS_no_species, OTUS_species[as.numeric(as.character(OTUS_species$best_identity))<as.numeric(opt$similarity),])
   message("Ignoring ", length(OTUS_no_species[,1]), " MOTUs with taxonomic rank of genus or higher")
   OTUS_species <- OTUS_species[-c(as.numeric(as.character(OTUS_species$best_identity))<as.numeric(opt$similarity)),]
   OTUS_species <- OTUS_species[order(OTUS_species$species_name),]
