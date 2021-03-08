@@ -15,7 +15,7 @@ This script is a post-bioinformatic curation of the dataset after the metabarcod
 3. Collapses MOTUs with the same species identification (only those above a similarity threshold with the reference sequence)
 
 Arguments: <br />
- -_i_: Input file. Must be a .csv file with at least the following columns: "id", "rank" and "sequence". All records in "rank" column must be written in lowercase. No default. <br />
+ -_i_: Input file. Must be a .csv file with at least the following columns: "id", "rank" and "sequence". All records in "rank" column must be written in lowercase. <br />
  -_o_: Resulting curated table. Default: input file_curated.csv. <br />
  -_t_: Proportion of reads suspected of have suffered tag switching. No percentage. Default: 0.001. <br />
  -_r_: Minumum number of reads in total to consider a MOTU as a true occurrence. Default: 3. <br />
@@ -30,7 +30,7 @@ Usage (command line (terminal or similar)): <br /><br />$ BOLD_identities -f _in
 This script conducts taxonomic assignation of COI sequences by querying to BOLD database. By using the API system instead of the identification function from package 'bold' the system does not saturate and keeps sending sequences and receiving identification. Then, those identifications are assigned to their lowest taxonomic level based on similarity thresholds (98 % for species, 95 % for genus, 90 % for family, and 85 % for order).
 
 Arguments:  <br />
--_f_: Input file. Must be a .fasta / .fas / .fa file. No default. <br />
+-_f_: Input file. Must be a .fasta / .fas / .fa file. <br />
 -_t_: Output table with taxonomy. Default: input file_taxonomy.csv
 
 <br /><br />
@@ -42,8 +42,8 @@ This script converts DNA sequences downloaded from BOLD and retrieves the taxono
 
 Arguments:  <br />
 -_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. The first identifier followed by the pipe (|) is necessary. Sequences can include gaps. <br />
--_o_: Output file to be used for ecotag (obitools). <br />
--_k_: NCBI API key.
+-_o_: Output file to be used for ecotag (obitools). Default: input_file_taxid.fasta <br />
+-_k_: NCBI API key. No default.
 
 <br /><br />
 - "polyclad_colors", R script.
