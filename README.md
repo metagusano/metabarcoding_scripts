@@ -34,6 +34,18 @@ Arguments:  <br />
 -_t_: Output table with taxonomy. Default: input file_taxonomy.csv
 
 <br /><br />
+- __"boldfasta2obifasta_ref"__, R script
+
+Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -k _NCBI_key_ 
+
+This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). It can be run with an NCBI key to maximize up to 10 the number of queries per second to NCBI.
+
+Arguments:  <br />
+-_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. The first identifier followed by the pipe (|) is necessary. Sequences can include gaps. <br />
+-_o_: Output file to be used for ecotag (obitools). <br />
+-_k_: NCBI API key.
+
+<br /><br />
 - "polyclad_colors", R script.
 
 R function for colour palettes representing the colouration pattern of some polyclad flatworm (Platyhelminthes, Polycladida) species. Syntax and function copied from https://github.com/karthik/wesanderson (highly recomended), only the names of the function and the palettes is changed.
