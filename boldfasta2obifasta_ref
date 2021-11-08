@@ -61,8 +61,8 @@ for (i in 1:length(seq_no_taxid)){
     rank[i] <- bold_tax_name(boldname[i])$tax_rank
     taxid[i] <- as.character(get_uid(boldname[i], rank_filter=rank[i], key= key, division_filter = taxon))[1]
   } else{
-    rank[i] <- "unknown"
-    taxid[i] <- "unknown"
+    taxid[i] <- as.character(get_uid(boldname[i], key= key, division_filter = taxon))[1]
+    rank[i] <- ncbi_get_taxon_summary(taxid[i])$rank
   }
   newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
 }
