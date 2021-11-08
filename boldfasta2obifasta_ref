@@ -18,7 +18,9 @@ option_list = list(
   make_option(c("-o", "--output_fasta"), type="character", default=NULL,
               help="Output file name [default = input file ending in _taxid.csv]", metavar="character"),
   make_option(c("-k", "--key_NCBI"), type="character", default=NULL,
-              help="Output file name [default = input file ending in _taxid.csv]", metavar="character")
+              help="Output file name [default = input file ending in _taxid.csv]", metavar="character"),
+  make_option(c("-t", "--taxon"), type="character", default=NULL,
+              help="Taxonomic group of interest to resolve name duplications (optional)", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list);
@@ -36,6 +38,7 @@ if (is.null(opt$output_fasta)){
 infile <- opt$input_fasta
 outfile <- opt$output_fasta
 key <- opt$key_NCBI
+taxon <- opt$taxon
 
 seq_no_taxid <- read.fasta(infile, as.string = T, whole.header = T, forceDNAtolower=F)
 
@@ -54,8 +57,13 @@ for (i in 1:length(seq_no_taxid)){
   if (length(grep("cf.", boldname[i]))!=0){
     boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
   } else{}
-  rank[i] <- bold_tax_name(boldname[i])$tax_rank
-  taxid[i] <- as.character(get_uid(boldname[i], rank_filter=rank[i], key= key))[1]
+  if ("tax_rank" %in% colnames(bold_tax_name(boldname[i]))){
+    rank[i] <- bold_tax_name(boldname[i])$tax_rank
+    taxid[i] <- as.character(get_uid(boldname[i], rank_filter=rank[i], key= key, division_filter = taxon))[1]
+  } else{
+    rank[i] <- "unknown"
+    taxid[i] <- "unknown"
+  }
   newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
 }
 
