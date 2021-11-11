@@ -50,7 +50,7 @@ newname <- NULL
 for (i in 1:length(seq_no_taxid)){
   message("Retrieving taxid for sequence ", i, " of ", length(seq_no_taxid), "\r", appendLF = FALSE)
   boldid[i] <- gsub("\\|.*","", getName(seq_no_taxid[i]))
-  boldname[i] <- bold_seq(ids=boldid[i])[[1]]$name
+  boldname[i] <- strsplit(getName(seq_no_taxid), "\\|")[[i]][2]
   if (length(grep("sp.", boldname[i]))!=0){
     boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
   } else{}
@@ -60,13 +60,8 @@ for (i in 1:length(seq_no_taxid)){
   if (length(grep("aff.", boldname[i]))!=0){
     boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
   } else{}
-  if ("tax_rank" %in% colnames(bold_tax_name(boldname[i]))){
-    rank[i] <- bold_tax_name(boldname[i])$tax_rank
-    taxid[i] <- as.character(get_uid(boldname[i], rank_filter=rank[i], key= key, division_filter = taxon))[1]
-  } else{
-    taxid[i] <- as.character(get_uid(boldname[i], key= key, division_filter = taxon))[1]
-    rank[i] <- ncbi_get_taxon_summary(taxid[i])$rank
-  }
+  taxid[i] <- as.character(get_uid(boldname[i], key= NULL, division_filter = "Metazoa"))[1]
+  rank[i] <- ncbi_get_taxon_summary(taxid[i])$rank
   newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
 }
 
