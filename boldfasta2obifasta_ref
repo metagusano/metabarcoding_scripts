@@ -2,7 +2,10 @@
 
 # This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy,
 # to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD).
-# It can be run with an NCBI key to maximize up to 10 the number of queries per second to NCBI.
+# For those taxa whose rank is not included in NCBI taxonomy the script will look for the immediate parent, and register the rank change.
+# It can be run with an NCBI key to maximize up to 10 the number of queries per second to NCBI (set as environment variable). This can be 
+# removed after the script with the following command:
+# > Sys.unsetenv("ENTREZ_KEY")
 
 library(bold)
 library(seqinr)
@@ -40,6 +43,8 @@ outfile <- opt$output_fasta
 key <- opt$key_NCBI
 taxon <- opt$taxon
 
+
+Sys.setenv(ENTREZ_KEY=key)
 seq_no_taxid <- read.fasta(infile, as.string = T, whole.header = T, forceDNAtolower=F)
 
 boldid <- NULL
@@ -47,10 +52,13 @@ boldname <- NULL
 taxid <- NULL
 rank <- NULL
 newname <- NULL
+ori_name <- NULL
+ori_rank <- NULL
 for (i in 1:length(seq_no_taxid)){
-  message("Retrieving taxid for sequence ", i, " of ", length(seq_no_taxid), "\r", appendLF = FALSE)
+  message("Retrieving taxid for sequence ", i, " of ", length(seq_no_taxid), "\r", appendLF = T)
   boldid[i] <- gsub("\\|.*","", getName(seq_no_taxid[i]))
   boldname[i] <- strsplit(getName(seq_no_taxid), "\\|")[[i]][2]
+  ori_name[i] <- boldname[i]
   if (length(grep("sp.", boldname[i]))!=0){
     boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
   } else{}
@@ -60,9 +68,24 @@ for (i in 1:length(seq_no_taxid)){
   if (length(grep("aff.", boldname[i]))!=0){
     boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
   } else{}
-  taxid[i] <- as.character(get_uid(boldname[i], key= NULL, division_filter = "Metazoa"))[1]
+  taxonomy_num <- as.character(get_uid(boldname[i], division_filter = "Metazoa", messages=F))[1]
+  if (is.na(taxonomy_num)==T){
+    ori_rank[i] <- bold_tax_name(boldname[i])$tax_rank
+  } else {}
+  while (is.na(taxonomy_num)==T){
+  parent_tax <- bold_tax_name(boldname[i])$parentname
+  message("!! Taxon *", boldname[i], "* not found in NCBI's taxonomy. Trying parent taxon", "\r", appendLF = T)
+  taxonomy_num <- as.character(get_uid(parent_tax, division_filter = "Metazoa", messages=F))[1]
+  boldname[i] <- parent_tax
+  }
+  taxid[i] <- taxonomy_num
   rank[i] <- ncbi_get_taxon_summary(taxid[i])$rank
-  newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
+  message(">>> taxid registered for taxon *", boldname[i],"*\n", appendLF = T)
+  if (ori_name[i]!=boldname[i]){
+    newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_name[i],"; original_db_rank=", ori_rank[i], ";", sep = "")
+  } else{
+    newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
+  }
 }
 
 for (i in 1:length(seq_no_taxid)){
