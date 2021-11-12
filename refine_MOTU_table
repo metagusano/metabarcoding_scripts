@@ -1,9 +1,10 @@
 #!/usr/bin/env Rscript
 
-#This script is a post-bioinformatic curation of the dataset after the metabarcoding pipeline. Three main functions:
-#Removes low abundance reads on each sample subjected to tag switching
-#Removes low abundance MOTUs with less than X reads in total in all the samples
-#Collapses MOTUs with the same species identification (only those above a similarity threshold with the reference sequence)
+# This script is a post-bioinformatic curation of the dataset after the metabarcoding pipeline. Three main functions:
+# Removes low abundance reads on each sample subjected to tag switching
+# Removes low abundance MOTUs with less than X reads in total in all the samples
+# Collapses MOTUs with the same species identification (only those above a similarity threshold with the reference sequence)
+# Author: Daniel Marquina
 
 library(optparse)
 options( warn = -1 )
