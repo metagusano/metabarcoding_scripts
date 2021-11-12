@@ -38,12 +38,12 @@ Arguments:  <br />
 
 Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -k _NCBI_key_ 
 
-This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). It can be run with an NCBI key to maximize up to 10 the number of queries per second to NCBI.
+This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). It is reccomended to get an NCBI key to maximize up to 10 the number of queries per second to NCBI (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/). Then, the key is set as an environment variable by typing:
+# > Sys.setenv(ENTREZ_KEY="yourkey")
 
 Arguments:  <br />
 -_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. Sequences can include gaps. <br />
 -_o_: Output file to be used for ecotag (obitools). Default: input_file_taxid.fasta <br />
--_k_: Personal NCBI API key (optional). No default. Added as an environment variable, can be afterwards removed by the following command: "> Sys.unsetenv("ENTREZ_KEY")"<br />
 -_t_: Taxonomic group of interest to resolve name duplications (optional). No default.
 
 <br /><br />
