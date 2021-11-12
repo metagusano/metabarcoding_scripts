@@ -3,9 +3,10 @@
 # This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy,
 # to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD).
 # For those taxa whose rank is not included in NCBI taxonomy the script will look for the immediate parent, and register the rank change.
-# It can be run with an NCBI key to maximize up to 10 the number of queries per second to NCBI (set as environment variable). This can be 
-# removed after the script with the following command:
-# > Sys.unsetenv("ENTREZ_KEY")
+# It is reccomended to get an NCBI key to maximize up to 10 the number of queries per second to NCBI (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/).
+# Then, the key is set as an environment variable by typing:
+# > Sys.setenv(ENTREZ_KEY="yourkey")
+# Author: Daniel Marquina
 
 library(bold)
 library(seqinr)
@@ -20,8 +21,6 @@ option_list = list(
               help="fasta file with the sequences to be renamed", metavar="character"),
   make_option(c("-o", "--output_fasta"), type="character", default=NULL,
               help="Output file name [default = input file ending in _taxid.csv]", metavar="character"),
-  make_option(c("-k", "--key_NCBI"), type="character", default=NULL,
-              help="Personal NCBI API key (optional)", metavar="character"),
   make_option(c("-t", "--taxon"), type="character", default=NULL,
               help="Taxonomic group of interest to resolve name duplications (optional)", metavar="character")
 )
@@ -40,11 +39,8 @@ if (is.null(opt$output_fasta)){
 
 infile <- opt$input_fasta
 outfile <- opt$output_fasta
-key <- opt$key_NCBI
 taxon <- opt$taxon
 
-
-Sys.setenv(ENTREZ_KEY=key)
 seq_no_taxid <- read.fasta(infile, as.string = T, whole.header = T, forceDNAtolower=F)
 
 boldid <- NULL
