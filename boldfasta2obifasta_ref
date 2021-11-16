@@ -82,7 +82,7 @@ for (i in 1:length(seq_no_taxid)){
   boldname[i] <- parent_tax
   }
   taxid[i] <- taxonomy_num
-  rank[i] <- ncbi_get_taxon_summary(taxid[i])$rank
+  rank[i] <- bold_tax_name(boldname[i])$rank
   message(">>> taxid registered for taxon *", boldname[i],"*\n", appendLF = T)
   if (ori_name[i]!=boldname[i]){
     newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_name[i],"; original_db_rank=", ori_rank[i], ";", sep = "")
