@@ -76,7 +76,7 @@ for (i in 1:length(seq_no_taxid)){
     ori_rank[i] <- bold_tax_name(boldname[i])$tax_rank
   } else {}
   while (is.na(taxonomy_num)==T){
-  parent_tax <- bold_tax_name(boldname[i])$parentname
+  parent_tax <- ifelse(length(bold_tax_name(boldname[i]))!=1, bold_tax_name(boldname[i])$parentname, strsplit(boldname[i], ' ')[[1]][1])
   message("!! Taxon *", boldname[i], "* not found in NCBI's taxonomy. Trying parent taxon", "\r", appendLF = T)
   taxonomy_num <- as.character(get_uid(parent_tax, division_filter = taxon, messages=F))[1]
   boldname[i] <- parent_tax
