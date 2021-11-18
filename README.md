@@ -36,7 +36,7 @@ Arguments:  <br />
 <br /><br />
 - __"boldfasta2obifasta_ref"__, R script
 
-Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -k _NCBI_key_ 
+Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -d _directory_with_taxdump_ 
 
 This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). It is necessary to have downloaded and extracted the NCBI taxdump ($ wget -m ftp://ftp.ncbi.nlm.nih.gov://pub/taxonomy/taxdump.tar.gz)
 
