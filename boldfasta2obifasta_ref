@@ -6,9 +6,9 @@
 # Author: Daniel Marquina
 
 library(bold)
+suppressMessages(library(CHNOSZ))
 library(seqinr)
 library(optparse)
-library(CHNOSZ)
 
 # Set file names for input and output files
 options( warn = -1 )
