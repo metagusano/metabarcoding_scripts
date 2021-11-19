@@ -77,11 +77,11 @@ for (i in 1:length(seq_no_taxid)){
     boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
   } else{}
   if (length(taxnames[taxnames$name==boldname[i],1])==0){
-    ori_tax <- bold_tax_name(boldname[i])
-    ori_rank[i] <- ori_tax$tax_rank
+    ori_rank[i] <- bold_tax_name(boldname[i])$rank
   } else{}
   while (length(taxnames[taxnames$name==boldname[i],1])==0){
-    parent_tax <- ifelse(length(ori_tax)!=1, ori_tax$parentname, strsplit(boldname[i], ' ')[[1]][1])
+    bold_tax <- bold_tax_name(boldname[i])
+    parent_tax <- ifelse(length(bold_tax)!=1, bold_tax$parentname, strsplit(boldname[i], ' ')[[1]][1])
     message("!! Taxon *", boldname[i], "* not found in NCBI's taxonomy. Trying parent taxon", "\r", appendLF = T)
     boldname[i] <- parent_tax
     }
