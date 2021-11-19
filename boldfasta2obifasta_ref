@@ -83,7 +83,6 @@ for (i in 1:length(seq_no_taxid)){
   while (length(taxnames[taxnames$name==boldname[i],1])==0){
     parent_tax <- ifelse(length(ori_tax)!=1, ori_tax$parentname, strsplit(boldname[i], ' ')[[1]][1])
     message("!! Taxon *", boldname[i], "* not found in NCBI's taxonomy. Trying parent taxon", "\r", appendLF = T)
-    taxid[i] <- taxnames$id[taxnames$name==parent_tax]
     boldname[i] <- parent_tax
     }
   taxid[i] <- taxnames$id[taxnames$name==boldname[i]]
