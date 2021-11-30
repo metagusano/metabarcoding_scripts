@@ -2,13 +2,16 @@
 
 # This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy,
 # to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD).
-# It is necessary to have downloaded and extracted the NCBI taxdump (wget -m ftp://ftp.ncbi.nlm.nih.gov://pub/taxonomy/taxdump.tar.gz)# For those taxa whose rank is not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the rank change.
+# It is necessary to have downloaded and extracted the NCBI taxdump (wget -m ftp://ftp.ncbi.nlm.nih.gov://pub/taxonomy/taxdump.tar.gz)
+# For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change.
 # Author: Daniel Marquina
 
 library(bold)
+library(data.table)
 suppressMessages(library(CHNOSZ))
 suppressMessages(library(seqinr))
 library(optparse)
+lenght=length
 
 # Set file names for input and output files
 options( warn = -1 )
@@ -42,62 +45,96 @@ infile <- opt$input_fasta
 outfile <- opt$output_fasta
 directory <- opt$directory
 
+
+# Define functions to extract NCBI taxids and ranks
+taxon2id <- function(x){
+  nameidx <- taxnames[name == x]
+  if(nrow(nameidx) == 0){
+    return(NA)
+  } else {
+    return(nameidx$id)
+  }
+}
+id2rank <- function(x){
+  ididx <- taxranks[id == x]
+  if(nrow(ididx) == 0){
+    return(NA)
+  } else {
+    return(as.character(ididx$rank))
+  }
+}
+
 # Import sequences
 message("Reading reference fasta file from BOLD", "\r", appendLF = T)
 seq_no_taxid <- read.fasta(infile, as.string = T, whole.header = T, forceDNAtolower=F)
-message("> Imported ", length(seq_no_taxid), " sequences", "\r", appendLF = T)
+message("> Imported ", length(seq_no_taxid), " sequences", "\n", appendLF = T)
+
 
 # Import taxonomy info
 message("Reading NCBI's taxonomy database", "\r", appendLF = T)
-taxnames <- getnames(directory)
-taxranks <- getnodes(directory)
-message("> Taxonomy database ready", "\r", appendLF = T)
+taxnames <- data.table(getnames(directory))
+setkey(taxnames, name, id)
+taxranks <- data.table(getnodes(directory))
+setkey(taxranks, id, rank)
+message("> Taxonomy database ready", "\n", appendLF = T)
 
-# Get taxids
-boldid <- NULL
-boldname <- NULL
-taxid <- NULL
-rank <- NULL
-newname <- NULL
-ori_name <- NULL
-ori_rank <- NULL
-message("Searching taxonomy database for taxids")
-for (i in 1:length(seq_no_taxid)){
-  message("Retrieving taxid for sequence ", i, " of ", length(seq_no_taxid), "\r", appendLF = T)
-  boldid[i] <- gsub("\\|.*","", getName(seq_no_taxid[i]))
-  boldname[i] <- strsplit(getName(seq_no_taxid), "\\|")[[i]][2]
-  ori_name[i] <- boldname[i]
-  if (length(grep("sp.", boldname[i]))!=0){
-    boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
+
+# Preparing sequence headers for query
+seq_names <- getName(seq_no_taxid)
+boldids <- gsub("\\|.*","", seq_names)
+boldnames <- sapply(strsplit(seq_names, split="\\|"), '[[' ,2)
+ori_names <- boldnames
+for (i in 1:length(boldnames)){
+  if (length(grep("sp.", boldnames[i]))!=0){
+    boldnames[i] <- strsplit(boldnames[i], " ")[[1]][1]
   } else{}
-  if (length(grep("cf.", boldname[i]))!=0){
-    boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
+  if (length(grep("cf.", boldnames[i]))!=0){
+    boldnames[i] <- strsplit(boldnames[i], " ")[[1]][1]
   } else{}
-  if (length(grep("aff.", boldname[i]))!=0){
-    boldname[i] <- strsplit(boldname[i], " ")[[1]][1]
+  if (length(grep("aff.", boldnames[i]))!=0){
+    boldnames[i] <- strsplit(boldnames[i], " ")[[1]][1]
   } else{}
-  if (length(taxnames[taxnames$name==boldname[i],1])==0){
-    ori_rank[i] <- bold_tax_name(boldname[i])$tax_rank
-  } else{}
-  while (length(taxnames[taxnames$name==boldname[i],1])==0){
-    bold_tax <- bold_tax_name(boldname[i])
-    parent_tax <- ifelse(length(bold_tax)!=1, bold_tax$parentname, strsplit(boldname[i], ' ')[[1]][1])
-    message("!! Taxon *", boldname[i], "* not found in NCBI's taxonomy. Trying parent taxon", "\r", appendLF = T)
-    boldname[i] <- parent_tax
+}
+
+# Query
+message("Extracting taxid & ranks from NCBI taxonomy", "\r", appendLF = T)
+taxid <- unlist(sapply(boldnames, taxon2id))
+rank <- sapply(taxid, id2rank)
+message("Taxid and rank recorded for ", length(na.omit(taxid)), " out of ", length(boldnames), " sequences", "\n", appendLF = T)
+
+# Re-name sequences with parent taxon
+message("Searching BOLD for parents of missed taxa", "\r", appendLF = T)
+for (i in 1:lenght(taxid)){
+  if (is.na(taxid[i])==T){
+    while (nrow(taxnames[taxnames$name==boldnames[i],1])==0){
+      bold_tax <- bold_tax_name(boldnames[i])
+      parent_tax <- ifelse(length(bold_tax)!=1, bold_tax$parentname, strsplit(boldnames[i], ' ')[[1]][1])
+      if (parent_tax==boldnames[i]){
+        break
+      } else {
+        boldnames[i] <- parent_tax
+      }
     }
-  taxid[i] <- taxnames$id[taxnames$name==boldname[i]]
-  rank[i] <- as.character(taxranks$rank[taxranks$id==taxid[i]])
-  message(">>> taxid registered for taxon *", boldname[i],"*\n", appendLF = T)
-  if (ori_name[i]!=boldname[i]){
-    newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_name[i],"; original_db_rank=", ori_rank[i], ";", sep = "")
-  } else{
-    newname[i] <- paste(boldid[i]," scientific_name=", boldname[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
+    taxid[i] <- taxon2id(boldnames[i])
+    rank[i] <- id2rank(taxid[i])
+  } else {}
+}
+taxid[which(is.na(taxid)==T)] <- "not found"
+rank[which(is.na(taxid)==T)] <- "not found"
+message("! Taxid and rank could not be found for ", lenght(taxid)-length(na.omit(taxid)), " sequences", "\n", appendLF = T)
+
+# Write new fasta with new names
+newname <- NULL
+for (i in 1:length(taxid)){
+  if (taxid[i]=="not found"){
+    newname[i] <- paste(boldids[i]," scientific_name=", boldnames[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_names[i], ";", sep = "")
+    } else {
+    newname[i] <- paste(boldids[i]," scientific_name=", boldnames[i], "; taxid=",taxid[i],"; rank=",rank[i],";", sep = "")
   }
 }
+
 for (i in 1:length(seq_no_taxid)){
   seq_no_taxid[[i]][1] <- gsub("-", "", getSequence(seq_no_taxid, as.string = T)[[i]])
 }
-
-# Write new fasta with obitools format
 write.fasta(seq_no_taxid, newname, outfile, as.string = T, open = "w", nbchar = max(getLength(seq_no_taxid)))
-message(outfile, " created with NCBI taxids")
+message(outfile, " created with NCBI taxids", "\n", appendLF = T)
