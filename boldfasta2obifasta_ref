@@ -2,12 +2,13 @@
 
 # This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy,
 # to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD).
-# It is necessary to have downloaded and extracted the NCBI taxdump (wget -m ftp://ftp.ncbi.nlm.nih.gov://pub/taxonomy/taxdump.tar.gz)
+# It is necessary to have downloaded and extracted the NCBI taxdump (wget -m ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz)
 # For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change.
 # Author: Daniel Marquina
 
 library(bold)
-library(data.table)
+suppressMessages(library(data.table))
+suppressMessages(library(tidyverse))
 suppressMessages(library(CHNOSZ))
 suppressMessages(library(seqinr))
 library(optparse)
@@ -48,7 +49,8 @@ directory <- opt$directory
 
 # Define functions to extract NCBI taxids and ranks
 taxon2id <- function(x){
-  nameidx <- taxnames[name == x]
+  onlyanimals <- taxnames[kingdom == "Metazoa"]
+  nameidx <- onlyanimals[name == x]
   if(nrow(nameidx) == 0){
     return(NA)
   } else {
@@ -72,8 +74,10 @@ message("> Imported ", length(seq_no_taxid), " sequences", "\n", appendLF = T)
 
 # Import taxonomy info
 message("Reading NCBI's taxonomy database", "\r", appendLF = T)
-taxnames <- data.table(getnames(directory))
-setkey(taxnames, name, id)
+taxnames <- suppressMessages(data.table(read_tsv(paste(directory, "/rankedlineage.dmp", sep=""))))
+colnames(taxnames) = c("id","", "name","", "species","", "genus","", "family","", "order","", "class","","phylum","", "kingdom","", "dominion", "")
+message("Read ", length(taxnames$id), " records", "\r", appendLF = T)
+setkey(taxnames, name, id, kingdom)
 taxranks <- data.table(getnodes(directory))
 setkey(taxranks, id, rank)
 message("> Taxonomy database ready", "\n", appendLF = T)
