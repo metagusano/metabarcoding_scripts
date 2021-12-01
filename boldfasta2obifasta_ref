@@ -109,7 +109,7 @@ for (i in 1:lenght(taxid)){
     while (nrow(taxnames[taxnames$name==boldnames[i],1])==0){
       bold_tax <- bold_tax_name(boldnames[i])
       parent_tax <- ifelse(length(bold_tax)!=1, bold_tax$parentname, strsplit(boldnames[i], ' ')[[1]][1])
-      if (parent_tax==boldnames[i]){
+      if (parent_tax==boldnames[i] || length(parent_tax)==0){
         break
       } else {
         boldnames[i] <- parent_tax
