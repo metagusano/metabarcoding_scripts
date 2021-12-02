@@ -38,13 +38,14 @@ Arguments:  <br />
 
 Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -d _directory_with_taxdump_ 
 
-This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change. It is necessary to have downloaded and extracted the NCBI taxdump ($ wget -m ftp://ftp.ncbi.nlm.nih.gov://pub/taxonomy/taxdump.tar.gz)
+This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change. It is necessary to have downloaded and extracted the NCBI taxdump ($ wget -m ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz)
 
 Arguments:  <br />
 -_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. Sequences can include gaps. <br />
 -_o_: Output file to be used for ecotag (obitools). Default: input_file_taxid.fasta <br />
 -_d_: Directory where NCBI's taxdump is stored. Default: current directory
-
+-_r_: Rank of the taxonomic group of interest. It can only be well-established taxonomic ranks (species, genus, family, order, class, phylum, kingdom, superkingdom) Default: kingdom
+-_t_: Taxononmic group of interest. Default: Metazoa
 
 <br /><br />
 - "polyclad_colors", R script.
