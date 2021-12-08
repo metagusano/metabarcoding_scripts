@@ -141,7 +141,7 @@ for (i in 1:lenght(taxid)){
 }
 taxid[which(is.na(taxid)==T)] <- "not found"
 rank[which(is.na(taxid)==T)] <- "not found"
-message("! Taxid and rank could not be found for ", lenght(taxid)-length(na.omit(taxid)), " sequences", "\n", appendLF = T)
+message("! Taxid and rank could not be found for ", lenght(taxid)-length(taxid[taxid!="not found])), " sequences", "\n", appendLF = T)
 
 # Write new fasta with new names
 newname <- NULL
