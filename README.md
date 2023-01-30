@@ -34,11 +34,11 @@ Arguments:  <br />
 -_t_: Output table with taxonomy. Default: input file_taxonomy.csv
 
 <br /><br />
-- __"boldfasta2obifasta_ref"__, R script
+- __"bold2obiref"__, R script
 
 Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -d _directory_with_taxdump_ 
 
-This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change. It is necessary to have downloaded and extracted the NCBI taxdump ($ wget -m ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz)
+This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change. It is necessary to have downloaded and extracted the NCBI taxdump ($ wget -m ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz). Also has the option of adding the forward and reverse primers of interest (tipically BOLD trims them out, but they are necessary for ecoPCR).
 
 Arguments:  <br />
 -_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. Sequences can include gaps. <br />
@@ -46,6 +46,8 @@ Arguments:  <br />
 -_d_: Directory where NCBI's taxdump is stored. Write without final slash (e.g. "reference_db/taxonomy_dump", **not** "reference_db/taxonomy_dump") Default: current directory <br />
 -_r_: Rank of the taxonomic group of interest. It can only be well-established taxonomic ranks (species, genus, family, order, class, phylum, kingdom, superkingdom, **always lower case**) Default: kingdom <br />
 -_t_: Taxononmic group of interest. Default: Metazoa
+-_F_: Forward primer to be added to the sequence. No default
+-_R_: Reverse primer to be added to the sequence. No default
 
 <br /><br />
 - "polyclad_colors", R script.
