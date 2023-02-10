@@ -1,4 +1,4 @@
-#! /usr/bin/Rscript
+#!/usr/bin/env Rscript
 
 # This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD).
 # Sequences from BOLD can be easily dowloaded with <<wget -O "taxon".fasta http://boldsystems.org/index.php/API_Public/sequence?taxon="taxon">>), just substituting with the taxon of interest (see options below).
