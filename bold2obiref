@@ -89,7 +89,6 @@ id2rank <- function(x){
 # Import sequences
 message("Reading reference fasta file from BOLD", "\r", appendLF = T)
 seq_no_taxid <- read.fasta(infile, as.string = T, whole.header = T, forceDNAtolower=F)
-seq_no_taxid <- seq_no_taxid[1:8]
 message("> Imported ", length(seq_no_taxid), " sequences", "\n", appendLF = T)
 
 
