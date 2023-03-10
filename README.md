@@ -36,7 +36,7 @@ Arguments:  <br />
 <br /><br />
 - __"bold2obiref"__, R script
 
-Usage (command line (terminal or similar)): <br /><br />$ boldfasta2obifasta_ref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -d _directory_with_taxdump_ 
+Usage (command line (terminal or similar)): <br /><br />$ bold2obiref -i _input_fasta.fasta_ -o _output_fasta.fasta_ -d _directory_with_taxdump_ 
 
 This script converts DNA sequences downloaded from BOLD and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from BOLD). For those taxa not included in NCBI taxonomy the script will look for the immediate parent in BOLD, and register the name change. It is necessary to have downloaded and extracted the NCBI taxdump ($ wget -m ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz). Also has the option of adding the forward and reverse primers of interest (tipically BOLD trims them out, but they are necessary for ecoPCR).
 
