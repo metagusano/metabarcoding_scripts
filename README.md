@@ -58,7 +58,7 @@ This script converts DNA sequences downloaded from UNITE and retrieves the taxon
 This script is a version of 'bold2obiref', available also in my repository.
 
 Arguments:  <br />
--_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. Sequences can include gaps. <br />
+-_i_: Input file. Must be a fasta file downloaded directly from UNITE. Sequence headers should read like this (just an example): >Liposcelis_entomophila|JN828917|SH0000009.09FU|reps_singleton|k__Metazoa;p__Arthropoda;c__Insecta;o__Psocoptera;f__Liposcelididae;g__Liposcelis;s__Liposcelis_entomophila. Sequences can include gaps. <br />
 -_o_: Output file to be used for ecotag (obitools). Default: input_file_taxid.fasta <br />
 -_d_: Directory where NCBI's taxdump is stored. Write without final slash (e.g. "reference_db/taxonomy_dump", **not** "reference_db/taxonomy_dump/") Default: current directory <br />
 -_r_: Rank of the taxonomic group of interest. It can only be well-established taxonomic ranks (species, genus, family, order, class, phylum, kingdom, superkingdom, **always lower case**) Default: kingdom <br />
