@@ -60,14 +60,23 @@ if (is.null(opt$taxon)){
   opt$taxon <- "Metazoa"
 }
 
+if (is.null(opt$Forward_primer)){
+  forward <- NULL
+} else {
+  forward <- as.SeqFastadna(opt$Forward_primer)
+}
+
+if (is.null(opt$Reverse_primer)){
+  reverse <- NULL
+} else {
+  reverse <- as.SeqFastadna(toupper(paste(rev(comp(strsplit(opt$Reverse_primer, "")[[1]])), collapse="")))
+}
+
 infile <- opt$input_fasta
 outfile <- opt$output_fasta
 taxonomy_directory <- opt$taxonomy_directory
 rank_subset <- opt$rank
 taxon_subset <- opt$taxon
-forward <- as.SeqFastadna(opt$Forward_primer)
-reverse <- as.SeqFastadna(toupper(paste(rev(comp(strsplit(opt$Reverse_primer, "")[[1]])), collapse="")))
-
 
 # Define functions to extract NCBI taxids and ranks
 taxon2id <- function(x){
