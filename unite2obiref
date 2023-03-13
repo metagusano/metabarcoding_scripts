@@ -1,0 +1,137 @@
+#!/usr/bin/env Rscript
+
+# This script converts DNA sequences downloaded from UNITE and retrieves the taxonomic identifier of the taxon from NCBI taxonomy, to create a new fasta file with the following information to be used with OBITools: taxid, scientific_name, and record id (from UNITE).
+# # Sequences from UNITE can be easily dowloaded with <<wget>>. Search here https://unite.ut.ee/repository.php, for the fasta dataset of your interest, and get the Pluto path (e.g. <<wget -c 'https://files.plutof.ut.ee/public/orig/7F/BC/7FBC5546106A966C9A2D71E3A4E6A1B111A10E32C2CF25D2B217935F2C2A7868.tgz'>>).
+# It is necessary to have downloaded and extracted the NCBI new taxdump (<<wget -m ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz>>)
+# This script is a version of 'bold2obiref', available also in my repository..
+# Author: Daniel Marquina
+
+suppressMessages(library(data.table))
+suppressMessages(library(tidyverse))
+suppressMessages(library(CHNOSZ))
+suppressMessages(library(seqinr))
+library(readr)
+library(optparse)
+lenght=length
+
+# Set file names for input and output files
+options( warn = -1 )
+
+option_list = list(
+  make_option(c("-i", "--input_fasta"), type="character", default=NULL,
+              help="fasta file with the sequences to be renamed", metavar="character"),
+  make_option(c("-o", "--output_fasta"), type="character", default=NULL,
+              help="Output file name [default = input file ending in _taxid.csv]", metavar="character"),
+  make_option(c("-d", "--taxonomy_directory"), type="character", default=NULL,
+              help="Directory where NCBI's taxdump is stored [default = current directory]", metavar="character"),
+  make_option(c("-r", "--rank"), type="character", default=NULL,
+              help="Rank of the taxonomic group of interest [default = kingdom]", metavar="character"),
+  make_option(c("-t", "--taxon"), type="character", default=NULL,
+              help="Taxon of interest [default = Fungi]", metavar="character")
+  )
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+if (is.null(opt$input_fasta)){
+  print_help(opt_parser)
+  stop("At least one file must be provided: input fasta with the sequences to be renamed.", call.=FALSE)
+}
+
+if (is.null(opt$output_fasta)){
+  opt$output_fasta <- paste0(substr(opt$input_fasta,1,nchar(opt$input_fasta)-6),"_taxid.fasta")
+}
+
+if (is.null(opt$taxonomy_directory)){
+  opt$taxonomy_directory <- getwd()
+}
+
+if (is.null(opt$rank)){
+  opt$rank <- "kingdom"
+}
+
+if (is.null(opt$taxon)){
+  opt$taxon <- "Fungi"
+}
+
+infile <- opt$input_fasta
+outfile <- opt$output_fasta
+taxonomy_directory <- opt$taxonomy_directory
+rank_subset <- opt$rank
+taxon_subset <- opt$taxon
+
+
+# Define functions to extract NCBI taxids and ranks
+taxon2id <- function(x){
+  nameidx <- onlytaxonnames[name == x][1]
+  if(nrow(nameidx) == 0){
+    return(NA)
+  } else {
+    return(nameidx$id)
+  }
+}
+id2rank <- function(x){
+  ididx <- taxranks[id == x]
+  if(nrow(ididx) == 0){
+    return(NA)
+  } else {
+    return(as.character(ididx$rank))
+  }
+}
+
+# Import sequences
+message("Reading reference fasta file from UNITE", "\r", appendLF = T)
+seq_no_taxid <- read.fasta(infile, as.string = T, whole.header = T, forceDNAtolower=F)
+
+message("> Imported ", length(seq_no_taxid), " sequences", "\n", appendLF = T)
+
+
+# Import taxonomy info
+message("Reading NCBI's taxonomy database", "\r", appendLF = T)
+taxnames <- suppressMessages(data.table(read_tsv(paste0(taxonomy_directory, "/rankedlineage.dmp"))))
+colnames(taxnames) = c("id","", "name","", "species","", "genus","", "family","", "order","", "class","","phylum","", "kingdom","", "superkingdom", "")
+message("Read ", length(taxnames$id), " records", "\r", appendLF = T)
+setkeyv(taxnames, c("name", "id", rank_subset))
+onlytaxonnames <- rbind(taxnames[name == taxon_subset], taxnames[get(rank_subset) == taxon_subset])
+message("Reducing database to include only ", dim(onlytaxonnames)[1], " records from ", rank_subset, " ", taxon_subset,   "\r", appendLF = T)
+taxranks <- data.table(getnodes(taxonomy_directory))
+setkey(taxranks, id, rank)
+message("> Taxonomy database ready", "\n", appendLF = T)
+
+
+# Preparing sequence headers for query
+seq_names <- getName(seq_no_taxid)
+uniteids <- sapply(strsplit(seq_names, split="\\|"), '[[' ,3)
+unitenames <- gsub("\\|.*","", seq_names)
+unitenames <- gsub('_',' ', unitenames)
+ori_names <- unitenames
+for (i in 1:length(unitenames)){
+  if (length(grep("sp", unitenames[i]))!=0){
+    unitenames[i] <- strsplit(unitenames[i], " ")[[1]][1]
+  } else{}
+}
+
+# Query
+message("Extracting taxid & ranks from NCBI taxonomy", "\r", appendLF = T)
+taxid <- unlist(sapply(unitenames, taxon2id))
+rank <- sapply(taxid, id2rank)
+message("Taxid and rank recorded for ", length(na.omit(taxid)), " out of ", length(unitenames), " sequences", "\n", appendLF = T)
+taxid[which(is.na(taxid)==T)] <- "not found"
+rank[which(is.na(rank)==T)] <- "not found"
+message("! Taxid and rank could not be found for ", lenght(taxid)-length(taxid[taxid!="not found"]), " sequences", "\n", appendLF = T)
+
+# Write new fasta with new names
+newname <- NULL
+for (i in 1:length(taxid)){
+  if (unitenames[i]!=ori_names[i]){
+    newname[i] <- paste0(uniteids[i]," scientific_name=", unitenames[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_names[i], ";")
+  } else {
+    newname[i] <- paste0(uniteids[i]," scientific_name=", unitenames[i], "; taxid=",taxid[i],"; rank=",rank[i],";")
+  }
+}
+
+for (i in 1:length(seq_no_taxid)){
+  seq_no_taxid[[i]][1] <- gsub("-", "", getSequence(seq_no_taxid, as.string = T)[[i]])
+}
+write.fasta(seq_no_taxid, newname, outfile, as.string = T, open = "w", nbchar = max(getLength(seq_no_taxid)))
+message(outfile, " created with NCBI taxids", "\n", appendLF = T)
