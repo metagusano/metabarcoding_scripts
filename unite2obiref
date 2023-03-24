@@ -130,8 +130,11 @@ for (i in 1:length(taxid)){
   }
 }
 
-for (i in 1:length(seq_no_taxid)){
-  seq_no_taxid[[i]][1] <- gsub("-", "", getSequence(seq_no_taxid, as.string = T)[[i]])
+seq_no_taxid.char <- as.character(seq_no_taxid)
+for (i in 1:length(seq_no_taxid.char)){
+  seq_no_taxid.char[i] <- gsub("-", "", seq_no_taxid.char[i])
 }
-write.fasta(seq_no_taxid, newname, outfile, as.string = T, open = "w", nbchar = max(getLength(seq_no_taxid)))
+for (i in 1:length(seq_no_taxid.char)){
+  cat(paste0(">", newname[i], "\n", seq_no_taxid.char[i], "\n"), file=outfile, append=T)
+}
 message(outfile, " created with NCBI taxids", "\n", appendLF = T)
