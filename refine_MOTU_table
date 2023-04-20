@@ -36,6 +36,7 @@ if (is.null(opt$output_table)) {
   opt$output_table <- paste(substr(opt$input_table,1,nchar(opt$input_table)-4),"_curated.csv",sep="")
 }
 
+
 ###
 
 library(tibble)
@@ -85,16 +86,21 @@ if (opt$aggregate == "yes"){
   OTUS_species <- OTUS.goodtags.minreads[OTUS.goodtags.minreads$rank=="species",]
   OTUS_no_species <- rbind(OTUS_no_species, OTUS_species[as.numeric(as.character(OTUS_species$best_identity))<as.numeric(opt$similarity),])
   message("Ignoring ", length(OTUS_no_species[,1]), " MOTUs with taxonomic rank of genus or higher")
-  OTUS_species <- OTUS_species[-c(as.numeric(as.character(OTUS_species$best_identity))<as.numeric(opt$similarity)),]
+  OTUS_species <- OTUS_species[-which(as.numeric(as.character(OTUS_species$best_identity))<as.numeric(opt$similarity)),]
   OTUS_species <- OTUS_species[order(OTUS_species$species_name),]
   original_MOTUs <- length(OTUS_species[,1])
-  OTUS_species_abundance <- which(sapply(OTUS_species, is.factor)==F)
+  OTUS_species_abundance <- which(sapply(OTUS_species, is.numeric)==T)
   OTUS_samples <- names(OTUS_species_abundance)
-  OTUS_species.sum <- add_column(OTUS_species, total.reads = rowSums(OTUS_species[c(OTUS_species_abundance)]), .before = "sequence")
-  OTUS_species_info <- sapply(OTUS_species, is.factor)
+  OTUS_species.sum <- add_column(OTUS_species, total.reads = rowSums(OTUS_species[c(OTUS_species_abundance)]))
+  OTUS_species$best_identity <- as.character(OTUS_species$best_identity)
+  OTUS_species$taxid <- as.character(OTUS_species$taxid)
+  OTUS_species_info <- sapply(OTUS_species, is.character)
   OTUS_species_taxonomy <- names(which(OTUS_species_info==T))
   OTUS_species_taxonomy <- noquote(OTUS_species_taxonomy[OTUS_species_taxonomy!=c("sequence")])
   Unique_species_reads <- data.frame(OTUS_species %>% group_by(species_name) %>% summarise_if(is.numeric, funs(sum), order=T))
+  reads_good <- Unique_species_reads[,-1]-1
+  Unique_species_reads <- cbind(Unique_species_reads[,1], reads_good)
+  names(Unique_species_reads)[1] <- "species_name"
   representative_seq <- NULL
   aggregated_MOTUs_id <- NULL
   aggregated_MOTUs_seqs <- NULL
@@ -111,14 +117,14 @@ if (opt$aggregate == "yes"){
     sequences <- c(sequences, as.character(OTUS_species$sequence[MOTU_no[i]]))
     aggregated_MOTUs_id <- c(aggregated_MOTUs_id, list(as.character(OTUS_species.sum[OTUS_species.sum$species_name==unique(OTUS_species.sum$species_name)[i],]$id)))
   }
-
+  
   aggregated_MOTUs <- length(aggregated_species_taxo[,1])
   aggregated_species <- cbind(aggregated_species_taxo,
                               aggregated_species_reads,
                               sequence=sequences,
                               aggregated_ids=noquote(aggregated_MOTUs_id))
   message("  -> A total of ", original_MOTUs, " MOTUs have been collapsed into ", aggregated_MOTUs, " species")
-
+  
   message("~ ")
   message("~ ")
   message("~ Generating the final curated table")
@@ -130,7 +136,7 @@ if (opt$aggregate == "yes"){
   message("~ Generating the final curated table")
   final_table <- OTUS.goodtags.minreads
 }
-                         
+
 write.csv2(final_table, opt$output_table, row.names = F)
 message("~ ")
 message("~ ")
