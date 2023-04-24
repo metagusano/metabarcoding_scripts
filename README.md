@@ -43,10 +43,10 @@ This script converts DNA sequences downloaded from BOLD and retrieves the taxono
 Arguments:  <br />
 -_i_: Input file. Must be a fasta file downloaded directly from BOLD. Sequence headers should read like this (just an example): >GAHAP1377-14|Grania ovitheca|COI-5P|GU473675. Sequences can include gaps. <br />
 -_o_: Output file to be used for ecotag (obitools). Default: input_file_taxid.fasta <br />
--_d_: Directory where NCBI's taxdump is stored. Write without final slash (e.g. "reference_db/taxonomy_dump", **not** "reference_db/taxonomy_dump") Default: current directory <br />
+-_d_: Directory where NCBI's taxdump is stored. Write without final slash (e.g. "reference_db/taxonomy_dump", **not** "reference_db/taxonomy_dump/") Default: current directory <br />
 -_r_: Rank of the taxonomic group of interest. It can only be well-established taxonomic ranks (species, genus, family, order, class, phylum, kingdom, superkingdom, **always lower case**) Default: kingdom <br />
--_t_: Taxononmic group of interest. Default: Metazoa
--_F_: Forward primer to be added to the sequence. No default
+-_t_: Taxononmic group of interest. Default: Metazoa <br />
+-_F_: Forward primer to be added to the sequence. No default <br />
 -_R_: Reverse primer to be added to the sequence. No default
 
 <br /><br />
