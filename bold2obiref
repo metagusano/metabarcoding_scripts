@@ -163,9 +163,9 @@ message("! Taxid and rank could not be found for ", lenght(taxid)-length(taxid[t
 newname <- NULL
 for (i in 1:length(taxid)){
   if (boldnames[i]!=ori_names[i]){
-    newname[i] <- paste0(boldids[i]," scientific_name=", boldnames[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_names[i], ";")
+    newname[i] <- paste0(boldids[i]," scientific_name=", boldnames[i], "; taxid=",taxid[i],"; rank=",rank[i],"; original_db_name=", ori_names[i], "; sequence downloaded from BOLD")
   } else {
-    newname[i] <- paste0(boldids[i]," scientific_name=", boldnames[i], "; taxid=",taxid[i],"; rank=",rank[i],";")
+    newname[i] <- paste0(boldids[i]," scientific_name=", boldnames[i], "; taxid=",taxid[i],"; rank=",rank[i],"; sequence downloaded from BOLD")
   }
 }
 
