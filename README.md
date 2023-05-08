@@ -64,6 +64,10 @@ Arguments:  <br />
 -_r_: Rank of the taxonomic group of interest. It can only be well-established taxonomic ranks (species, genus, family, order, class, phylum, kingdom, superkingdom, **always lower case**) Default: kingdom <br />
 -_t_: Taxononmic group of interest. Default: Fungi
 
+ 
+<br /><br />
+ADD DEFINITION FOR SILVA2OBIREF!!
+
 <br /><br />
 - "polyclad_colors", R script.
 
