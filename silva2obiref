@@ -115,6 +115,9 @@ for (i in 1:length(silvanames)){
   if (length(grep("strain", silvanames[i]))!=0){
      silvanames[i] <- paste(strsplit(silvanames[i], " ")[[1]][c(1,2)], collapse=" ")
   } else{}
+  if (length(grep(""\\(*\\)"", silvanames[i]))!=0){
+     silvanames[i] <- paste(strsplit(silvanames[i], " ")[[1]][c(1,2)], collapse=" ")
+  } else{}
 }
 
 # Query
